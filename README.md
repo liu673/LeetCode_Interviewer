@@ -23,7 +23,7 @@
 ## 🚀快速开始
 1. 克隆项目
    ```shell
-   git clone https://github.com/liu673/LeetCode-Interviewer.git
+   git clone https://github.com/liu673/LeetCode_Interviewer.git
    ```
 
 2. 选择题目
