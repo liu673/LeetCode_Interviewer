@@ -578,7 +578,27 @@ class Solution:
 输出：0
 ```
 ```python
+class Solution:
+    def minSubArrayLen(self, target: int, nums: List[int]) -> int:
+        l = len(nums)
+        left = 0
+        right = 0
+        min_len = float('inf')
+        cur_sum = 0  # 当前的累加值
 
+        while right < l:
+            cur_sum += nums[right]
+
+            while cur_sum >= target:  # 当前累加值大于目标值
+                min_len = min(min_len, right - left + 1)  # 更新最短子数组的长度
+                # 从当前累加值cur_sum中减去nums[left]，并向右移动左指针left，缩小子数组的范围
+                cur_sum -= nums[left]
+                left += 1
+
+            right += 1
+
+        # print(nums[left - 1:right])
+        return min_len if min_len != float('inf') else 0
 ```
 
 </details>
@@ -593,10 +613,59 @@ class Solution:
 
    [最小覆盖子串【LeetCode链接】](https://leetcode.cn/problems/minimum-window-substring/description/)
    ```text
+   给你一个字符串 s 、一个字符串 t 。返回 s 中涵盖 t 所有字符的最小子串。如果 s 中不存在涵盖 t 所有字符的子串，则返回空字符串 "" 。
+   注意：
+   - 对于 t 中重复字符，我们寻找的子字符串中该字符数量必须不少于 t 中该字符数量。
+   - 如果 s 中存在这样的子串，我们保证它是唯一的答案。
    
+   示例 1：
+   输入：s = "ADOBECODEBANC", t = "ABC"
+   输出："BANC"
+   解释：最小覆盖子串 "BANC" 包含来自字符串 t 的 'A'、'B' 和 'C'。
+   
+   示例 2：
+   输入：s = "a", t = "a"
+   输出："a"
+   解释：整个字符串 s 是最小覆盖子串。
+   
+   示例 3:
+   输入: s = "a", t = "aa"
+   输出: ""
+   解释: t 中两个字符 'a' 均应包含在 s 的子串中，
+   因此没有符合条件的子字符串，返回空字符串。
    ```
    ```python
-   
+   class Solution:
+    def minWindow(self, s: str, t: str) -> str:
+        counts = Counter(t)     # 统计字符串t和滑动窗口维护的子串的字符数量差值，初始为t字符串的字符数量
+        diff = len(counts)      # 滑动窗口中缺失字符串t中字符的种类的数量，当diff为0，说明滑动窗口涵盖t中所有字符。初始为t中的所有不同字符数。
+        m = len(s)
+        left = 0            # 滑动窗口左边界
+        right = 0           # 滑动窗口右边界，指向下一个要加入滑动窗口的字符
+        min_len = m + 1     # 最小子串长度，初始为整个字符串长度 + 1，表示一个不可能的值
+        sub_str_start = -1  # 最小子串起点，最终要返回的是子串，通过start和minLen来确定子串范围
+        while right <= m:
+            # 还有缺失的字符
+            if diff > 0:
+                if right == m: break    # 没有可以加入的字符，退出
+                ch = s[right]           # 获取右边界指向的字符，右边界右移一位
+                right += 1
+                counts[ch] = counts.get(ch, 0) - 1  # 右边界字符加入滑动窗口，该字符的差距值 - 1
+                if counts[ch] == 0:
+                    diff -= 1   # 如果这个字符数量为0，说明新加入的字符使得有一种字符的数量满足要求，差值diff减1
+            else:
+                # 没有缺失的字符，当前滑动窗口维护的子串即为一个满足条件的子串
+                if right - left < min_len:
+                    # 更新最小子串
+                    min_len = right - left
+                    sub_str_start = left
+                ch = s[left]        # 获取左边界指向的字符，左边界右移一位；尝试获取更短的子串
+                left += 1
+                counts[ch] = counts.get(ch, 0) + 1  # 左边界字符移出滑动窗口，该字符的差距值 + 1
+                if counts[ch] == 1:
+                    diff += 1       # 如果这个字符数量为1，说明原本为0，移除的字符使得有一种字符的数量欠缺了，因此差值diff加1
+        # minLen仍为m+1，说明不存在涵盖t所有字符的子串，返回空字符串；否则提取找到的子串[subStrStart, subStrStart + minLen)
+        return "" if min_len == m + 1 else s[sub_str_start: sub_str_start + min_len]
    ```
    
    </details>
@@ -606,13 +675,69 @@ class Solution:
 
    [水果成篮【LeetCode链接】](https://leetcode.cn/problems/fruit-into-baskets/description/)
    ```text
+   你正在探访一家农场，农场从左到右种植了一排果树。这些树用一个整数数组 fruits 表示，其中 fruits[i] 是第 i 棵树上的水果 种类 。
+
+   你想要尽可能多地收集水果。然而，农场的主人设定了一些严格的规矩，你必须按照要求采摘水果：
    
+   你只有 两个 篮子，并且每个篮子只能装 单一类型 的水果。每个篮子能够装的水果总量没有限制。
+   你可以选择任意一棵树开始采摘，你必须从 每棵 树（包括开始采摘的树）上 恰好摘一个水果 。采摘的水果应当符合篮子中的水果类型。每采摘一次，你将会向右移动到下一棵树，并继续采摘。
+   一旦你走到某棵树前，但水果不符合篮子的水果类型，那么就必须停止采摘。
+   给你一个整数数组 fruits ，返回你可以收集的水果的 最大 数目。
+   
+   示例 1：
+   输入：fruits = [1,2,1]
+   输出：3
+   解释：可以采摘全部 3 棵树。
+   
+   示例 2：
+   输入：fruits = [0,1,2,2]
+   输出：3
+   解释：可以采摘 [1,2,2] 这三棵树。
+   如果从第一棵树开始采摘，则只能采摘 [0,1] 这两棵树。
+   
+   示例 3：
+   输入：fruits = [1,2,3,2,2]
+   输出：4
+   解释：可以采摘 [2,3,2,2] 这四棵树。
+   如果从第一棵树开始采摘，则只能采摘 [1,2] 这两棵树。
+   
+   示例 4：
+   输入：fruits = [3,3,3,1,2,1,1,2,3,3,4]
+   输出：5
+   解释：可以采摘 [1,2,1,1,2] 这五棵树。
    ```
    ```python
-   
+   class Solution:
+    def totalFruit(self, fruits: List[int]) -> int:
+        l, r= 0, 0
+        res = 0
+        classdict = defaultdict(int)
+        classcont = 0
+
+        while r < len(fruits):
+            if classdict[fruits[r]] == 0:
+                classcont += 1
+            classdict[fruits[r]] += 1
+
+            while classcont >2:
+                if classdict[fruits[l]] == 1:
+                    classcont -= 1
+                classdict[fruits[l]] -= 1
+                l += 1
+            
+            res = max(res, r - l + 1)
+            r += 1
+        print(fruits[l: r])
+        return res
    ```
    
    </details>
+</details>
+
+<details>
+<summary>拓展延伸-解法</summary>
+
+- [滑动窗口](https://leetcode.cn/problems/fruit-into-baskets/solutions/1437444/shen-du-jie-xi-zhe-dao-ti-he-by-linzeyin-6crr/)
 
 </details>
 
