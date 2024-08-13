@@ -1,6 +1,8 @@
 
 # LeetCode Interviewer
 
+> # 🚩此项目决定不再维护，将其合并到了另一个项目 [NLP Learning Workshop](https://github.com/liu673/NLP-Learning-Workshop/tree/main)中，详细内容可跳转看呦！
+
 ## 📚项目简介
 欢迎来到 LeetCode Interviewer，这是一个我专为面试准备的算法学习资源库，也希望自己能“学而时习之，思而时想之。”
 该项目汇集并解析LeetCode上与面试紧密相关的经典算法题目，帮助有需要的同学高效备战技术面试。
